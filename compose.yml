@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:16.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=${DBUSER}
+      - POSTGRES_PASSWORD=${DBPASSWORD}
+      - POSTGRES_DB=${DBNAME}
+    ports:
+      - '${DBPORT}:${DBPORT}'
+    volumes: 
+      - db:/var/lib/postgresql/data
+  api:
+    build: ./userserv
+    ports:
+      - '${APIPORT}:${APIPORT}'
+    depends_on:
+      - db
+    links:
+      - db 
+    environment:
+      - DBHOST=${DBHOST}
+      - DBPORT=${DBPORT}
+      - DBUSER=${DBUSER}
+      - DBPASSWORD=${DBPASSWORD}
+      - DBNAME=${DBNAME}
+  web:
+    build: 
+      context: ./web
+      args:
+      - APIURL=http://api:${APIPORT}/api 
+    ports:
+      - '${WEBPORT}:${WEBPORT}'
+    depends_on:
+      - api
+    links:
+      - api    
+volumes:
+  db:
+    driver: local

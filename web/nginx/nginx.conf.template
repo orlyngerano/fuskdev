@@ -1,0 +1,14 @@
+server { 
+ listen 80;
+
+ location / {
+   root /usr/share/nginx/html;
+   try_files ${DOLLAR}uri /index.html;
+ }
+ 
+ location /api {
+   proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
+   proxy_pass ${APIURL};
+   proxy_set_header Host ${DOLLAR}host;
+ }
+}
