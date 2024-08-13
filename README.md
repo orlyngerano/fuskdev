@@ -1,6 +1,6 @@
 # FuskDev
 
-Fuskdev short for full stack development. A template for developing api and web containerized using sprint boot framework and react ui library.
+Fuskdev short for full stack development. A template for developing api and web containerized using Spring Boot framework and React ui library.
 
 ## How to run
 
@@ -16,22 +16,22 @@ Follow Docker Desktop installation [Guide](https://www.docker.com/products/docke
 
 Open browser and enter [localhost](http://localhost) in url bar. You will find the icon shown in default page that will lead to user management.
 
-![dashboard](docs/alpha1.png?raw=true 'Dashboard')
+![dashboard](docs/alpha1.png?raw=true "Dashboard")
 
-![userlist](docs/alpha2.png?raw=true 'User List')
+![userlist](docs/alpha2.png?raw=true "User List")
 
-![usercreate](docs/alpha3.png?raw=true 'User Create')
+![usercreate](docs/alpha3.png?raw=true "User Create")
 
 ## Start Developing
 
 The system is containerized in three parts: Database, API and Web. Turnoff API and Web in docker desktop container dashboard.
 
-![dockercontainer](docs/dockercontainer.png?raw=true 'Docker container')
+![dockercontainer](docs/dockercontainer.png?raw=true "Docker container")
 
 ### API
 
 - Follow how to install [Java](https://www.java.com/en/download/) and [Gradle](https://gradle.org/install/) in your system.
-- It's ideal to develop springbot using intellij. Follow how to install [here](https://www.jetbrains.com/idea/download/).
+- It's ideal to develop Spring Boot using intellij. Follow how to install [here](https://www.jetbrains.com/idea/download/).
 - After successfull installation open the folder <strong>userserv</strong> in intellij and wait to finish sync process.
 - Configure VM options in build process to use <strong>application-dev.properties</strong> containing database connection service.
 
@@ -39,7 +39,7 @@ The system is containerized in three parts: Database, API and Web. Turnoff API a
   -Dspring.profiles.active=dev
   ```
 
-  ![dev](docs/devconfig.png?raw=true 'Dev config')
+  ![dev](docs/devconfig.png?raw=true "Dev config")
 
 - Alternatively you can use gradle command to run the API in terminal regardless which editor you use. In project root folder execute
 
@@ -50,7 +50,7 @@ The system is containerized in three parts: Database, API and Web. Turnoff API a
 
 - Test API in browser by entering [localhost:8080/api/user](http://localhost:8080/api/user)
 
-  ![api](docs/apitest.png?raw=true 'API Test')
+  ![api](docs/apitest.png?raw=true "API Test")
 
 ### Web
 
@@ -67,4 +67,4 @@ The system is containerized in three parts: Database, API and Web. Turnoff API a
 
 - Test Web by entering [localhost:3000](http://localhost:3000)
 
-  ![web](docs/alphadev1.png?raw=true 'Web')
+  ![web](docs/alphadev1.png?raw=true "Web")
