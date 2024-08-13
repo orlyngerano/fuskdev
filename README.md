@@ -31,8 +31,8 @@ The system is containerized in three parts: Database, API and Web. Turnoff API a
 ### API
 
 - Follow how to install [Java](https://www.java.com/en/download/) and [Gradle](https://gradle.org/install/) in your system.
-- It's ideal to develop Spring Boot using intellij. Follow how to install [here](https://www.jetbrains.com/idea/download/).
-- After successfull installation open the folder <strong>userserv</strong> in intellij and wait to finish sync process.
+- It's ideal to develop Spring Boot using IntelliJ. Follow how to install [here](https://www.jetbrains.com/idea/download/).
+- After successfull installation open the folder <strong>userserv</strong> in IntelliJ and wait to finish sync process.
 - Configure VM options in build process to use <strong>application-dev.properties</strong> containing database connection service.
 
   ```
