@@ -6,7 +6,7 @@ server {
    try_files ${DOLLAR}uri /index.html;
  }
  
- location /api {
+ location /graphql {
    proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
    proxy_pass ${APIURL};
    proxy_set_header Host ${DOLLAR}host;

@@ -34,8 +34,8 @@ public class UserController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
-    void create(@Valid @RequestBody User user) {
-        userRepository.create(user);
+    User create(@Valid @RequestBody User user) {
+        return userRepository.create(user);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)

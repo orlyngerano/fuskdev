@@ -3,11 +3,14 @@ package dev.fuskdev.userserv.user;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -29,12 +32,19 @@ public class UserRepository {
         return this.jdbcClient.sql("select * from \"User\" where id= :id").param("id", id).query(User.class).optional();
     }
 
-    void create(User user) {
+    User create(User user) {
+        var keyHolder = new GeneratedKeyHolder();
+
         var updated = this.jdbcClient
-                .sql("insert into \"User\"(firstName,lastName,birthDate,gender) values(?,?,?,?)").params(
+                .sql("insert into \"User\"(firstName,lastName,birthDate,gender) values(?,?,?,?) returning id").params(
                         List.of(user.firstName(), user.lastName(), user.birthDate(), user.gender().toString()))
-                .update();
+                .update(keyHolder);
+
+        var newUser = new User(Objects.requireNonNull(keyHolder.getKey()).intValue(),user.firstName(), user.lastName(), user.birthDate(), user.gender());
+
         Assert.state(updated == 1, MessageFormat.format("Failed to create {0}", user.firstName()));
+
+        return newUser;
     }
 
     void update(User user, Integer id) {

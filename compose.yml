@@ -11,10 +11,10 @@ services:
       - '${DBPORT}:${DBPORT}'
     volumes: 
       - db:/var/lib/postgresql/data
-  api:
+  userserv:
     build: ./userserv
     ports:
-      - '${APIPORT}:${APIPORT}'
+      - '${USERSERVPORT}:${USERSERVPORT}'
     depends_on:
       - db
     links:
@@ -25,17 +25,28 @@ services:
       - DBUSER=${DBUSER}
       - DBPASSWORD=${DBPASSWORD}
       - DBNAME=${DBNAME}
+  gateway:
+    build: ./gateway
+    ports:
+      - '${GATEWAYPORT}:${GATEWAYPORT}'
+    depends_on:
+      - userserv
+    links:
+      - userserv 
+    environment:
+      - GATEWAYPORT=${GATEWAYPORT}
+      - USERSERVURI=http://userserv:${USERSERVPORT}/api
   web:
     build: 
       context: ./web
       args:
-      - APIURL=http://api:${APIPORT}/api 
+      - APIURL=http://gateway:${GATEWAYPORT} 
     ports:
       - '${WEBPORT}:${WEBPORT}'
     depends_on:
-      - api
+      - gateway
     links:
-      - api    
+      - gateway    
 volumes:
   db:
     driver: local

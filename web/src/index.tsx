@@ -2,24 +2,27 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router-dom';
 import { router } from './router';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 
-const queryClient = new QueryClient();
+const client = new ApolloClient({
+  uri: '/graphql',
+  cache: new InMemoryCache(),
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
+    <ApolloProvider client={client}>
       <LocalizationProvider dateAdapter={AdapterMoment}>
         <RouterProvider router={router} />
       </LocalizationProvider>
-    </QueryClientProvider>
+    </ApolloProvider>
   </React.StrictMode>
 );
 

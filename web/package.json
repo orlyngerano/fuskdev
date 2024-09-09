@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@apollo/client": "^3.11.8",
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.13.0",
     "@fontsource/roboto": "^5.0.13",
@@ -11,7 +12,6 @@
     "@mui/material": "^5.16.5",
     "@mui/x-data-grid": "^7.11.1",
     "@mui/x-date-pickers": "^7.11.1",
-    "@tanstack/react-query": "^5.51.15",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -19,6 +19,7 @@
     "@types/node": "^16.18.104",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "graphql": "^16.9.0",
     "moment": "^2.30.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -54,7 +55,7 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:8080",
+  "proxy": "http://localhost:8081",
   "devDependencies": {
     "@types/uuid": "^10.0.0"
   }

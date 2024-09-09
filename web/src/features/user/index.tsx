@@ -1,23 +1,90 @@
-import { Alert, Box, Button, Container, Snackbar, Stack } from '@mui/material';
+import { useQuery, gql, useMutation } from '@apollo/client';
+import { Alert, Box, Button, Container, Snackbar } from '@mui/material';
 import {
   DataGrid,
-  GridCellEditStopParams,
-  GridCellEditStopReasons,
   GridColDef,
   GridRowModel,
   GridRowSelectionModel,
   GridRowsProp,
   GridToolbarContainer,
-  MuiEvent,
 } from '@mui/x-data-grid';
-import ConfirmDialog from '../../components/ConfirmDialog';
-import UserFormDialog from './UserFormDialog';
 import { useEffect, useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import * as api from '../../api';
 import { Gender, User } from '../../types';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import UserFormDialog from './UserFormDialog';
+import ConfirmDialog from '../../components/ConfirmDialog';
+import moment from 'moment';
+
+const GET_USERS = gql`
+  query GetUsers {
+    users {
+      id
+      firstName
+      lastName
+      birthDate
+      gender
+    }
+  }
+`;
+
+const ADD_USER = gql`
+  mutation AddUser(
+    $firstName: String!
+    $lastName: String!
+    $birthDate: String!
+    $gender: String!
+  ) {
+    addUser(
+      firstName: $firstName
+      lastName: $lastName
+      birthDate: $birthDate
+      gender: $gender
+    ) {
+      id
+      firstName
+      lastName
+      birthDate
+      gender
+    }
+  }
+`;
+
+const DELETE_USERS = gql`
+  mutation DeleteUsers($ids: [String]!) {
+    deleteUsersById(ids: $ids) {
+      id
+      firstName
+      lastName
+      birthDate
+      gender
+    }
+  }
+`;
+
+const UPDATE_USER = gql`
+  mutation UpdateUser(
+    $id: ID!
+    $firstName: String!
+    $lastName: String!
+    $birthDate: String!
+    $gender: String!
+  ) {
+    updateUserById(
+      id: $id
+      firstName: $firstName
+      lastName: $lastName
+      birthDate: $birthDate
+      gender: $gender
+    ) {
+      id
+      firstName
+      lastName
+      birthDate
+      gender
+    }
+  }
+`;
 
 interface ToolbarProps {
   isDeleteVisible: boolean;
@@ -82,74 +149,81 @@ const columns: GridColDef[] = [
 ];
 
 const Users = () => {
+  const [isConfirmVisible, showConfirm] = useState(false);
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>(
     []
   );
-  const [isConfirmVisible, showConfirm] = useState(false);
-  const [isFormVisible, showForm] = useState(false);
   const [rows, setRows] = useState<GridRowsProp>([]);
+  const [isFormVisible, showForm] = useState(false);
+
+  const usersGetSvc = useQuery(GET_USERS);
+  const [userAdd, userAddSvc] = useMutation(ADD_USER);
+  const [userUpdate, userUpdateSvc] = useMutation(UPDATE_USER);
+  const [deleteUsers, deleteUsersSvc] = useMutation(DELETE_USERS);
   const [isNotifyVisible, showNotify] = useState(false);
   const [notifyConfig, setNotifyConfig] = useState({
     isSuccess: true,
     message: '',
   });
 
-  const getUser = useQuery({
-    queryKey: ['Users'],
-    queryFn: api.getUsers,
-  });
-
-  const deleteUser = useMutation({
-    mutationFn: (id: string | number) => api.deleteUser(id),
-  });
-
-  const createUser = useMutation({
-    mutationFn: (data: User) => api.createUser(data),
-  });
-
+  // Update User
   useEffect(() => {
-    if (getUser.isSuccess) {
-      setRows(
-        getUser.data?.map((record) => ({
-          id: record.id,
-          firstName: record.firstName,
-          lastName: record.lastName,
-          birthDate: new Date(record.birthDate),
-          gender: record.gender,
-        })) || []
-      );
-    }
-  }, [getUser.data, getUser.isSuccess]);
-
-  useEffect(() => {
-    if (deleteUser.isSuccess) {
-      getUser.refetch();
+    if (
+      userUpdateSvc.called &&
+      !userUpdateSvc.loading &&
+      !userUpdateSvc.error
+    ) {
       setNotifyConfig({
         isSuccess: true,
-        message: 'Successfully deleted User',
+        message: 'Successfully updated User',
       });
       showNotify(true);
+      userUpdateSvc.reset();
     }
-    if (deleteUser.isError) {
-      setNotifyConfig({ isSuccess: false, message: 'Failed delete User' });
-      showNotify(true);
-    }
-  }, [deleteUser.isSuccess, deleteUser.isError]);
+  }, [userUpdateSvc.called, userUpdateSvc.loading, userUpdateSvc.error]);
 
+  // delete User and reload getting Users
   useEffect(() => {
-    if (createUser.isSuccess) {
-      getUser.refetch();
+    if (
+      deleteUsersSvc.called &&
+      !deleteUsersSvc.loading &&
+      !deleteUsersSvc.error
+    ) {
       setNotifyConfig({
         isSuccess: true,
-        message: 'Successfully created User',
+        message: 'Successfully deleted Users',
       });
       showNotify(true);
+      usersGetSvc.refetch();
+      deleteUsersSvc.reset();
     }
-    if (createUser.isError) {
-      setNotifyConfig({ isSuccess: false, message: 'Failed create User' });
+  }, [deleteUsersSvc.called, deleteUsersSvc.loading, deleteUsersSvc.error]);
+
+  // Add User and reload getting Users
+  useEffect(() => {
+    if (userAddSvc.called && !userAddSvc.loading && !userAddSvc.error) {
+      setNotifyConfig({
+        isSuccess: true,
+        message: 'Successfully added User',
+      });
       showNotify(true);
+      usersGetSvc.refetch();
+      userAddSvc.reset();
     }
-  }, [createUser.isSuccess, createUser.isError]);
+  }, [userAddSvc.called, userAddSvc.loading, userAddSvc.error]);
+
+  // Get Users
+  useEffect(() => {
+    setRows(
+      usersGetSvc.data?.users?.map((record: User) => ({
+        id: record.id,
+        firstName: record.firstName,
+        lastName: record.lastName,
+        birthDate: new Date(record.birthDate),
+        gender: record.gender,
+      })) || []
+    );
+  }, [usersGetSvc.data?.users]);
 
   const showDelete = selectionModel.length > 0;
   return (
@@ -178,12 +252,11 @@ const Users = () => {
             newRow: GridRowModel,
             oldRow: GridRowModel
           ) => {
-            const ok = await api.updateUser(newRow.id, newRow as User);
-            setNotifyConfig({
-              isSuccess: true,
-              message: 'Successfully update User',
-            });
-            showNotify(true);
+            const updateRow = {
+              ...newRow,
+              birthDate: moment(newRow.birthDate).format('YYYY-MM-DDTHH:mm:ss'),
+            };
+            userUpdate({ variables: updateRow });
             return newRow;
           }}
           onProcessRowUpdateError={(error) => {
@@ -199,12 +272,8 @@ const Users = () => {
         text="Delete user. Are you sure?"
         open={isConfirmVisible}
         handleAction={(confirm) => {
-          if (confirm) {
-            if (selectionModel.length) {
-              selectionModel.forEach((model) => {
-                deleteUser.mutate(model);
-              });
-            }
+          if (confirm && selectionModel.length) {
+            deleteUsers({ variables: { ids: selectionModel } });
           }
           showConfirm(false);
         }}
@@ -213,7 +282,7 @@ const Users = () => {
         open={isFormVisible}
         handleAction={(user) => {
           if (user) {
-            createUser.mutate(user);
+            userAdd({ variables: user });
           }
           showForm(false);
         }}
@@ -227,7 +296,7 @@ const Users = () => {
       >
         <Alert
           severity={notifyConfig.isSuccess ? 'success' : 'error'}
-          variant="outlined"
+          variant="filled"
           sx={{ width: '100%' }}
         >
           {notifyConfig.message}
